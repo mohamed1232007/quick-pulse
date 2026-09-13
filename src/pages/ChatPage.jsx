@@ -222,7 +222,7 @@ export default function ChatPage() {
                     ...message,
                     status: getMessageStatus(message, currentUserId),
                 })));
-                await API.post(`/chats/${activeChat._id}/read`);
+                API.post(`/chats/${activeChat._id}/read`).catch(() => {});
             } catch {
                 setError("Unable to load messages.");
             }
