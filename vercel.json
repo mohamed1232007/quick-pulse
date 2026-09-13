@@ -1,0 +1,12 @@
+{
+  "framework": "vite",
+  "installCommand": "npm install --workspaces=false",
+  "buildCommand": "npm run build --workspaces=false",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
