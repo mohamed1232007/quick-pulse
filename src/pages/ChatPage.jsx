@@ -9,6 +9,13 @@ import MessageList from "../components/MessageList";
 import { getMessageStatus, getSenderId, isOwnMessage } from "../utils/chat";
 import { getStoredUser } from "../utils/session";
 
+function getChatTitle(chat, currentUserId) {
+    const otherParticipant = chat?.participants?.find(
+        (user) => String(user._id) !== String(currentUserId),
+    );
+    return otherParticipant?.name || "Conversation";
+}
+
 export default function ChatPage() {
     const navigate = useNavigate();
     const [chats, setChats] = useState([]);
@@ -27,13 +34,6 @@ export default function ChatPage() {
     const previousUnreadCounts = useRef(new Map());
     const currentUser = getStoredUser();
     const currentUserId = currentUser?.id || currentUser?._id;
-
-    function getChatTitle(chat) {
-        const otherParticipant = chat?.participants?.find(
-            (user) => user._id !== currentUser?.id,
-        );
-        return otherParticipant?.name || "Conversation";
-    }
 
     function getOtherParticipant(chat) {
         return chat?.participants?.find(
@@ -54,7 +54,10 @@ export default function ChatPage() {
         async function loadChats() {
             try {
                 const chatResponse = await API.get("/chats");
-                const nextChats = chatResponse.data;
+                const nextChats = chatResponse.data.map((chat) => ({
+                    ...chat,
+                    title: getChatTitle(chat, currentUserId),
+                }));
                 if (document.visibilityState !== "visible"
                     && "Notification" in window
                     && Notification.permission === "granted") {
@@ -80,7 +83,7 @@ export default function ChatPage() {
         loadChats();
         const chatsInterval = window.setInterval(loadChats, 2000);
         return () => window.clearInterval(chatsInterval);
-    }, [navigate]);
+    }, [navigate, currentUserId]);
 
     useEffect(() => {
         if ("Notification" in window && Notification.permission === "default") {
@@ -218,10 +221,14 @@ export default function ChatPage() {
         async function loadMessages() {
             try {
                 const { data } = await API.get(`/chats/${activeChat._id}/messages`);
-                setMessages(data.map((message) => ({
+                const loadedMessages = data.map((message) => ({
                     ...message,
                     status: getMessageStatus(message, currentUserId),
-                })));
+                }));
+                setMessages((current) => [
+                    ...loadedMessages,
+                    ...current.filter((message) => message.pending),
+                ]);
                 API.post(`/chats/${activeChat._id}/read`).catch(() => {});
             } catch {
                 setError("Unable to load messages.");
@@ -327,7 +334,7 @@ export default function ChatPage() {
     return (
         <main className="admin-body has-active-chat">
             <ChatSidebar
-                chats={chats.map((chat) => ({ ...chat, title: getChatTitle(chat) }))}
+                chats={chats.map((chat) => ({ ...chat, title: getChatTitle(chat, currentUserId) }))}
                 users={users}
                 username={username}
                 searching={searching}
