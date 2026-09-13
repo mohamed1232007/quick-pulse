@@ -24,6 +24,7 @@ export default function ChatPage() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [accountMenuOpen, setAccountMenuOpen] = useState(false);
     const temporaryMessageNumber = useRef(0);
+    const previousUnreadCounts = useRef(new Map());
     const currentUser = getStoredUser();
     const currentUserId = currentUser?.id || currentUser?._id;
 
@@ -53,7 +54,23 @@ export default function ChatPage() {
         async function loadChats() {
             try {
                 const chatResponse = await API.get("/chats");
-                setChats(chatResponse.data);
+                const nextChats = chatResponse.data;
+                if (document.visibilityState !== "visible"
+                    && "Notification" in window
+                    && Notification.permission === "granted") {
+                    nextChats.forEach((chat) => {
+                        const previousCount = previousUnreadCounts.current.get(chat._id) || 0;
+                        if (chat.unreadCount > previousCount) {
+                            new Notification(`${chat.title} sent you a message`, {
+                                body: `${chat.unreadCount} unread message${chat.unreadCount === 1 ? "" : "s"}`,
+                            });
+                        }
+                    });
+                }
+                previousUnreadCounts.current = new Map(
+                    nextChats.map((chat) => [chat._id, chat.unreadCount || 0]),
+                );
+                setChats(nextChats);
             } catch (requestError) {
                 if (requestError.response?.status === 401) navigate("/login");
                 else setError("Unable to load your chats.");
@@ -64,6 +81,12 @@ export default function ChatPage() {
         const chatsInterval = window.setInterval(loadChats, 2000);
         return () => window.clearInterval(chatsInterval);
     }, [navigate]);
+
+    useEffect(() => {
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission().catch(() => {});
+        }
+    }, []);
 
     useEffect(() => {
         const handlePresence = ({ userId, online }) => {
@@ -199,6 +222,7 @@ export default function ChatPage() {
                     ...message,
                     status: getMessageStatus(message, currentUserId),
                 })));
+                await API.post(`/chats/${activeChat._id}/read`);
             } catch {
                 setError("Unable to load messages.");
             }

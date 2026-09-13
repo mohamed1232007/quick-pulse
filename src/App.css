@@ -94,6 +94,7 @@ button { cursor: pointer; appearance: none; }
 .chat-card-admin small { display: block; margin-top: 3px; color: #8c9890; font-size: 11px; }
 .outline-button { padding: 9px 15px; border: 1px solid #536516; border-radius: 9px; background: rgba(182,247,44,.06); color: #b6f72c; font-size: 13px; }
 .outline-button:hover { background: #b6f72c; color: #0b0e0f; }
+.unread-count { min-width: 24px; padding: 3px 7px; border-radius: 999px; background: #b6f72c; color: #10130d; font-size: 12px; text-align: center; }
 .chat-card-admin { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; padding: 16px; margin-bottom: 10px; border: 1px solid #292e30; border-radius: 12px; background: #171b1c; color: #dce1df; cursor: pointer; font: inherit; text-align: left; transition: .3s ease; }
 .chat-card-admin:hover { border-color: #7da31b; background: #1d2420; transform: translateX(2px); }
 .chat-card-admin.active { border-color: #b6f72c; background: #b6f72c; color: #10130d; box-shadow: 0 8px 20px rgba(182,247,44,.12); }

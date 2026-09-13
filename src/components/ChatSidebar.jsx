@@ -47,6 +47,7 @@ export default function ChatSidebar({
                 <button key={chat._id} className={`chat-card-admin ${activeChat?._id === chat._id ? "active" : ""}`}
                     type="button" onClick={() => onSelectChat(chat)}>
                     <span>{chat.title}</span>
+                    {chat.unreadCount > 0 && <strong className="unread-count">{chat.unreadCount}</strong>}
                 </button>
             ))}
             <div className="sidebar-account">
