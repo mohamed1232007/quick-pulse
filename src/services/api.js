@@ -6,7 +6,8 @@ const API = axios.create({
 });
 
 API.interceptors.request.use((config) => {
-    const csrfToken = document.cookie
+    const csrfToken = sessionStorage.getItem("quickpulse_csrf")
+        || document.cookie
         .split("; ")
         .find((cookie) => cookie.startsWith("quickpulse_csrf="))
         ?.split("=")[1];

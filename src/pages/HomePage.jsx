@@ -2,9 +2,10 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useEffect } from "react";
 import API from "../services/api";
+import { getStoredUser } from "../utils/session";
 
 export default function HomePage() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(Boolean(getStoredUser()));
 
     useEffect(() => {
         API.get("/auth/me")
@@ -14,7 +15,9 @@ export default function HomePage() {
                     sessionStorage.setItem("quickpulse_user", JSON.stringify(data.user));
                 }
             })
-            .catch(() => setIsLoggedIn(false));
+            .catch(() => {
+                if (!getStoredUser()) setIsLoggedIn(false);
+            });
     }, []);
 
     return (

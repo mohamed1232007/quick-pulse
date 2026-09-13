@@ -19,6 +19,7 @@ export default function LoginPage() {
         try {
             const { data } = await API.post("/auth/login", form);
             if (data.user) sessionStorage.setItem("quickpulse_user", JSON.stringify(data.user));
+            if (data.csrfToken) sessionStorage.setItem("quickpulse_csrf", data.csrfToken);
             navigate("/");
         } catch (requestError) {
             setError(requestError.response?.data?.message || "Unable to sign in. Please try again.");

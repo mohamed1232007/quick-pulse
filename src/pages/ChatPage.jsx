@@ -295,6 +295,7 @@ export default function ChatPage() {
     function logout() {
         API.post("/auth/logout").finally(() => {
             sessionStorage.removeItem("quickpulse_user");
+            sessionStorage.removeItem("quickpulse_csrf");
             navigate("/login");
         });
     }

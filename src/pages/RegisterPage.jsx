@@ -23,6 +23,7 @@ export default function RegisterPage() {
         try {
             const { data } = await API.post("/auth/register", form);
             if (data.user) sessionStorage.setItem("quickpulse_user", JSON.stringify(data.user));
+            if (data.csrfToken) sessionStorage.setItem("quickpulse_csrf", data.csrfToken);
             navigate("/");
         } catch (requestError) {
             const message = requestError.response?.data?.message || "Unable to create your account. Please try again.";
